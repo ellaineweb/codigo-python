@@ -183,12 +183,21 @@ plt.close()
 
 plt.figure(figsize=(10, 6))
 
+# sns.scatterplot(
+#     data=df_year,
+#     x='co2_kt',
+#     y='co2_per_capita',
+#     hue='region'
+# )
+
 sns.scatterplot(
     data=df_year,
     x='co2_kt',
     y='co2_per_capita',
     hue='region'
 )
+
+plt.xscale('log')
 
 plt.title(f'Total vs Per Capita ({ANO})')
 plt.savefig(os.path.join(OUTPUT_DIR, "comparacoes", f"comparacao_{ANO}.png"), dpi=300)
