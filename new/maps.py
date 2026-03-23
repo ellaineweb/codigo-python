@@ -42,6 +42,27 @@ df['date'] = pd.to_datetime(df['date'], dayfirst=True, errors='coerce')
 df = df.dropna(subset=['date'])
 df['year'] = df['date'].dt.year
 
+def ajustar_regiao(row):
+    if row['region'] == 'Americas':
+        pais = row['country']
+
+        norte = ['United States', 'Canada', 'Mexico']
+        central = [
+            'Guatemala', 'Belize', 'Honduras', 'El Salvador',
+            'Nicaragua', 'Costa Rica', 'Panama'
+        ]
+
+        if pais in norte:
+            return 'North America'
+        elif pais in central:
+            return 'Central America'
+        else:
+            return 'South America'
+
+    return row['region']
+
+df['region_adj'] = df.apply(ajustar_regiao, axis=1)
+
 world = gpd.read_file(CAMINHO_MAPA)
 
 def get_iso3(nome):
@@ -120,10 +141,12 @@ plot_mapa(
     'Blues'
 )
 
-continentes = df_year['region'].dropna().unique()
+# continentes = df_year['region'].dropna().unique()
+continentes = df_year['region_adj'].dropna().unique()
 
 for cont in continentes:
-    df_cont = df_year[df_year['region'] == cont]
+    # df_cont = df_year[df_year['region'] == cont]
+    df_cont = df_year[df_year['region_adj'] == cont]
 
     merged_cont = world.merge(df_cont, left_on='ISO_A3', right_on='iso3', how='inner')
 
@@ -163,7 +186,8 @@ for ano in anos:
         'Reds'
     )
 
-df_continent = df_year.groupby('region')['co2_kt'].sum().sort_values(ascending=False)
+# df_continent = df_year.groupby('region')['co2_kt'].sum().sort_values(ascending=False)
+df_continent = df_year.groupby('region_adj')['co2_kt'].sum().sort_values(ascending=False)
 
 plt.figure(figsize=(10, 6))
 sns.barplot(x=df_continent.values, y=df_continent.index)
